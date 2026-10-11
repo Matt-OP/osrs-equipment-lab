@@ -1,4 +1,4 @@
-# OSRS Equipment Lab
+# [OSRS Equipment Lab](https://matt-op.github.io/osrs-equipment-lab/)
 
 Scrape every equipment table from the [Old School RuneScape Wiki](https://oldschool.runescape.wiki/), then browse the items and test gear loadouts in a single self-contained web page.
 
