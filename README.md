@@ -1,14 +1,18 @@
 # [OSRS Equipment Lab](https://matt-op.github.io/osrs-equipment-lab/)
 
-Scrape every equipment table from the [Old School RuneScape Wiki](https://oldschool.runescape.wiki/), then browse the items and test gear loadouts in a single self-contained web page.
+<img width="430" height="847" alt="bar_charts" src="https://github.com/user-attachments/assets/aa3eeea1-c420-4453-b81c-031980924246" /> <img width="287" height="568" alt="equipment" src="https://github.com/user-attachments/assets/eab101c1-35ae-44ff-8906-53fa95125f8a" />
+
+<img width="1388" height="896" alt="radar" src="https://github.com/user-attachments/assets/9e42cf82-26b7-460f-bd72-7bd9f9daf7d1" />
+
+---
+
+Scrape every equipment table from the [Old School RuneScape Wiki](https://oldschool.runescape.wiki/), then browse the items and test gear loadouts in a [single self-contained web page](https://matt-op.github.io/osrs-equipment-lab/).
 
 - **Items tab:** search, filter and sort all ~1,950 pieces of equipment and view each item's full stat block.
 - **Loadout tab:** equip items into the 11 worn-equipment slots, preview what any item would change before equipping it, and see your totals as bars and a radar chart.
 - **Data pipeline:** Python scripts that pull the data and icons from the wiki and bake them into the page, plus an updater that only refreshes things when the wiki actually changed.
 
 The finished page is one HTML file with the data embedded. It needs no server, no database and no internet connection once the images are downloaded.
-
----
 
 ## Contents
 
