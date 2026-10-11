@@ -1,0 +1,87 @@
+name: Update data and deploy site
+
+on:
+  schedule:
+    - cron: "17 6 * * *"        # every day at 06:17 UTC
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Rebuild and redeploy even if no wiki changes are found"
+        type: boolean
+        default: false
+  push:
+    branches: [main]
+
+permissions:
+  contents: write               # lets the update job commit refreshed data
+  pages: write
+  id-token: write
+
+concurrency:
+  group: site
+  cancel-in-progress: false
+
+jobs:
+  update:
+    # Pushes only redeploy; scheduled and manual runs check the wiki first.
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.update.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Check wiki and refresh data
+        id: update
+        env:
+          OSRS_WIKI_CONTACT: https://github.com/${{ github.repository }}
+        run: python update_data.py ${{ inputs.force && '--force' || '' }}
+
+      - name: Commit refreshed data
+        if: steps.update.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || git commit -m "Update equipment data ($(date -u +%F))"
+          git push
+
+  deploy:
+    needs: update
+    # Deploy on pushes, manual runs, and scheduled runs that actually changed something.
+    if: >-
+      ${{ always()
+          && (needs.update.result == 'success' || needs.update.result == 'skipped')
+          && (github.event_name == 'push'
+              || github.event_name == 'workflow_dispatch'
+              || needs.update.outputs.changed == 'true') }}
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}   # include the update job's commit
+
+      - uses: actions/configure-pages@v5
+
+      - name: Assemble site
+        run: |
+          mkdir _site
+          cp index.html osrs_equipment_viewer.html osrs_equipment_all_slots.csv _site/
+          if [ -d images ]; then cp -r images _site/; fi
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
